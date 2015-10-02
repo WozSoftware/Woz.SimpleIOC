@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Woz.SimpleIOC", "Woz.SimpleIOC\Woz.SimpleIOC.csproj", "{B0134219-5D04-40C8-86AF-F05A96651A06}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Woz.SimpleIOC.Tests", "Woz.SimpleIOC.Tests\Woz.SimpleIOC.Tests.csproj", "{E55D49F4-6835-445F-A77A-ABF8AF3BEA48}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{B0134219-5D04-40C8-86AF-F05A96651A06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0134219-5D04-40C8-86AF-F05A96651A06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0134219-5D04-40C8-86AF-F05A96651A06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E55D49F4-6835-445F-A77A-ABF8AF3BEA48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E55D49F4-6835-445F-A77A-ABF8AF3BEA48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E55D49F4-6835-445F-A77A-ABF8AF3BEA48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E55D49F4-6835-445F-A77A-ABF8AF3BEA48}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

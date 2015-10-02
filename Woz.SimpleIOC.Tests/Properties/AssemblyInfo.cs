@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
-using System.Resources;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -25,15 +24,22 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Woz.SimpleIOC")]
-[assembly: AssemblyDescription("Simple thread safe IOC container")]
+[assembly: AssemblyTitle("Woz.SimpleIOC.Tests")]
+[assembly: AssemblyDescription("Test rig for IOC Woz.SimpleIOC")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Woz.Software")]
-[assembly: AssemblyProduct("Woz.SimpleIOC")]
+[assembly: AssemblyProduct("Woz.SimpleIOC.Tests")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: NeutralResourcesLanguage("en")]
+
+// Setting ComVisible to false makes the types in this assembly not visible 
+// to COM components.  If you need to access a type in this assembly from 
+// COM, set the ComVisible attribute to true on that type.
+[assembly: ComVisible(false)]
+
+// The following GUID is for the ID of the typelib if this project is exposed to COM
+[assembly: Guid("e55d49f4-6835-445f-a77a-abf8af3bea48")]
 
 // Version information for an assembly consists of the following four values:
 //
