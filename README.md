@@ -20,34 +20,43 @@ While this might appear to be a new project with few commits it is a recent rewr
 
 # Sample registrations:
 
-// Register a singleton for an interface.
+Register a singleton for an interface.
+
 IOC.Register<IThing>(() => new thing());
 
-//Register a named singleton for an interface.
+Register a named singleton for an interface.
+
 IOC.Register<IThing>("Name", () => new thing())
 
-//Register a named via enum singleton for an interface.
+Register a named via enum singleton for an interface.
+
 IOC.Register<IThing>(EnumType.Value, () => new thing())
 
-// Register an instance for an interface.
+Register an instance for an interface.
+
 IOC.Register<IThing>(ObjectLifetime.Instance, () => new thing());
 
-// Register a named Instance for an interface.
+Register a named Instance for an interface.
+
 IOC.Register<IThing>("Name", ObjectLifetime.Instance, () => new thing());
 
-// Register with nested resolution.
+Register with nested resolution.
+
 IOC.Register<IThing>(() => new thing(IOC.Resolve<IList<int>()));
 
 # Sample resolutions
 
-// Resolve an instance.
+Resolve an instance.
+
 var instance = IOC.Resolve<IThing>();
 
-// Resolve a named instance.
+Resolve a named instance.
+
 var instance = IOC.Resolve<IThing>("Name");
 
 # Other operations 
 
-// Flush the registration list.
+Flush the registration list.
+
 IOC.Clear();
 
