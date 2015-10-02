@@ -65,7 +65,7 @@ namespace Woz.SimpleIOC
                 .RegisterFor(string.Empty, ObjectLifetime.Singleton, builder);
         }
 
-        public static void Register<T>(string name, Func<T> builder)
+        public static void Register<T>(object name, Func<T> builder)
             where T : class
         {
             _getContainer()
@@ -81,7 +81,7 @@ namespace Woz.SimpleIOC
         }
 
         public static void Register<T>(
-            string name, ObjectLifetime lifetime, Func<T> builder)
+            object name, ObjectLifetime lifetime, Func<T> builder)
             where T : class
         {
             _getContainer()
@@ -89,7 +89,7 @@ namespace Woz.SimpleIOC
         }
 
         private void RegisterFor<T>(
-            string name, ObjectLifetime lifetime, Func<T> builder)
+            object name, ObjectLifetime lifetime, Func<T> builder)
             where T : class
         {
             Debug.Assert(builder != null);
@@ -110,13 +110,13 @@ namespace Woz.SimpleIOC
             return _getContainer().ResolverFor<T>(string.Empty);
         }
 
-        public static T Resolve<T>(string name)
+        public static T Resolve<T>(object name)
             where T : class
         {
             return _getContainer().ResolverFor<T>(name);
         }
 
-        private T ResolverFor<T>(string name)
+        private T ResolverFor<T>(object name)
             where T : class
         {
             var type = typeof (T);

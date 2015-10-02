@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endregion
 using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Woz.SimpleIOC.Tests
@@ -25,6 +26,7 @@ namespace Woz.SimpleIOC.Tests
     [TestClass]
     public class IOCTests
     {
+        public enum Name {ViaEnum}
         private const string Name1 = "1";
         private const string Name2 = "2";
 
@@ -93,6 +95,24 @@ namespace Woz.SimpleIOC.Tests
             Assert.AreEqual(
                 IOC.Resolve<IThing>(Name2).GetType().FullName,
                 typeof(Thing2).FullName);
+        }
+
+        [TestMethod]
+        public void NamedRegistrationViaEnum()
+        {
+            IOC.Register<IThing>(
+                Name.ViaEnum, ObjectLifetime.Instance, () => new Thing1());
+
+            Assert.IsNotNull(IOC.Resolve<IThing>(Name.ViaEnum));
+        }
+
+        [TestMethod]
+        public void GenericInterfaceResolution()
+        {
+            IOC.Register<IDictionary<string, IList<int>>>(
+                () => new Dictionary<string, IList<int>>());
+
+            Assert.IsNotNull(IOC.Resolve<IDictionary<string, IList<int>>>());
         }
 
         [TestMethod]

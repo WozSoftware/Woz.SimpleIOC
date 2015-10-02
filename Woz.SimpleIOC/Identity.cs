@@ -26,9 +26,9 @@ namespace Woz.SimpleIOC
         public Type ToResolve { get; }
         public string Name { get; }
 
-        public static Identity For(Type toResolve, string name)
+        public static Identity For(Type toResolve, object name)
         {
-            return new Identity(toResolve, name);
+            return new Identity(toResolve, name.ToString());
         }
 
         private Identity(Type toResolve, string name)
@@ -52,7 +52,10 @@ namespace Woz.SimpleIOC
 
         public override int GetHashCode()
         {
-            return ToResolve.GetHashCode() | Name.GetHashCode();
+            unchecked
+            {
+                return (ToResolve.GetHashCode() * 23) + Name.GetHashCode();
+            }
         }
     }
 }
