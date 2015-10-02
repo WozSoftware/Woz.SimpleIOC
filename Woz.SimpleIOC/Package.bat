@@ -1,0 +1,1 @@
+c:\tools\nuget\nuget.exe pack Woz.SimpleIOC.csproj -Prop Configuration=Release -IncludeReferencedProjects
