@@ -19,10 +19,14 @@
 #endregion
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Woz.SimpleIOC
 {
+    /// <summary>
+    /// Inversion of Control resolver cache. Used to register concrete 
+    /// implementations for Interfaces and Abstract types. Think of as
+    /// a generic abstract factory pattern.
+    /// </summary>
     public class IOC
     {
         private readonly IDictionary<Identity, Func<object>> _typeMap =
@@ -36,6 +40,9 @@ namespace Woz.SimpleIOC
             return SingletonOf(() => new IOC());
         }
 
+        /// <summary>
+        /// Empties the IOC resolver cache of all registrations.
+        /// </summary>
         public static void Clear()
         {
             lock (LockInstance)
@@ -58,6 +65,11 @@ namespace Woz.SimpleIOC
                 };
         }
 
+        /// <summary>
+        /// Registers an un-named singleton type in the IOC resolver cache
+        /// </summary>
+        /// <typeparam name="T">The type to register</typeparam>
+        /// <param name="builder">The concrete builder for the type</param>
         public static void Register<T>(Func<T> builder)
             where T : class
         {
@@ -65,6 +77,12 @@ namespace Woz.SimpleIOC
                 .RegisterFor(string.Empty, ObjectLifetime.Singleton, builder);
         }
 
+        /// <summary>
+        /// Registers a named singleton type in the IOC resolver cache
+        /// </summary>
+        /// <typeparam name="T">The type to register</typeparam>
+        /// <param name="name">The name to register the type under</param>
+        /// <param name="builder">The concrete builder for the type</param>
         public static void Register<T>(object name, Func<T> builder)
             where T : class
         {
@@ -72,6 +90,13 @@ namespace Woz.SimpleIOC
                 .RegisterFor(name, ObjectLifetime.Singleton, builder);
         }
 
+        /// <summary>
+        /// Registers an un-named type with the specified lifetime in the IOC 
+        /// resolver cache
+        /// </summary>
+        /// <typeparam name="T">The type to register</typeparam>
+        /// <param name="lifetime">The lifetime of the type</param>
+        /// <param name="builder">The concrete builder for the type</param>
         public static void Register<T>(
             ObjectLifetime lifetime, Func<T> builder)
             where T : class
@@ -80,6 +105,14 @@ namespace Woz.SimpleIOC
                 .RegisterFor(string.Empty, lifetime, builder);
         }
 
+        /// <summary>
+        /// Registers a named type with the specified lifetime in the IOC 
+        /// resolver cache
+        /// </summary>
+        /// <typeparam name="T">The type to register</typeparam>
+        /// <param name="name">The name to register the type under</param>
+        /// <param name="lifetime">The lifetime of the type</param>
+        /// <param name="builder">The concrete builder for the type</param>
         public static void Register<T>(
             object name, ObjectLifetime lifetime, Func<T> builder)
             where T : class
@@ -92,8 +125,6 @@ namespace Woz.SimpleIOC
             object name, ObjectLifetime lifetime, Func<T> builder)
             where T : class
         {
-            Debug.Assert(builder != null);
-
             var wrappedBuilder = lifetime == ObjectLifetime.Instance
                 ? builder
                 : SingletonOf(builder);
@@ -104,12 +135,23 @@ namespace Woz.SimpleIOC
             }
         }
 
+        /// <summary>
+        /// Resolve an un-named type from the IOC resolver cache
+        /// </summary>
+        /// <typeparam name="T">The type to resolve</typeparam>
+        /// <returns>The concrete instance of the type</returns>
         public static T Resolve<T>()
             where T : class
         {
             return _getContainer().ResolverFor<T>(string.Empty);
         }
 
+        /// <summary>
+        /// Resolve a named type from the IOC resolver cache
+        /// </summary>
+        /// <typeparam name="T">The type to resolve</typeparam>
+        /// <param name="name">The name of the type to resolve</param>
+        /// <returns>The concrete instance of the type</returns>
         public static T Resolve<T>(object name)
             where T : class
         {
