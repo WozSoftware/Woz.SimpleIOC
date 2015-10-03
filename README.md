@@ -22,27 +22,27 @@ While this might appear to be a new project with few commits it is a recent rewr
 
 Register a singleton for an interface.
 
-<code>IOC.Register&lt;IThing&gt;(() => new thing());</code>
+<code>IOC.Register&lt;IThing&gt;(() => new Thing());</code>
 
 Register a named singleton for an interface.
 
-<code>IOC.Register&lt;IThing&gt;("Name", () => new thing());</code>
+<code>IOC.Register&lt;IThing&gt;("Name", () => new Thing());</code>
 
 Register a named via enum singleton for an interface.
 
-<code>IOC.Register&lt;IThing&gt;(EnumType.Value, () => new thing());</code>
+<code>IOC.Register&lt;IThing&gt;(EnumType.Value, () => new Thing());</code>
 
 Register an instance for an interface.
 
-<code>IOC.Register&lt;IThing&gt;(ObjectLifetime.Instance, () => new thing());</code>
+<code>IOC.Register&lt;IThing&gt;(ObjectLifetime.Instance, () => new Thing());</code>
 
 Register a named Instance for an interface.
 
-<code>IOC.Register&lt;IThing&gt;("Name", ObjectLifetime.Instance, () => new thing());</code>
+<code>IOC.Register&lt;IThing&gt;("Name", ObjectLifetime.Instance, () => new Thing());</code>
 
 Register with nested resolution.
 
-<code>IOC.Register&lt;IThing&gt;(() => new thing(IOC.Resolve<IList<int>()));</code>
+<code>IOC.Register&lt;IThing&gt;(() => new thing(IOC.Resolve&lt;IList&lt;int&gt;&gt;()));</code>
 
 ## Sample resolutions
 
