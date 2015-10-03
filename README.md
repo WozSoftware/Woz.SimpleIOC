@@ -14,49 +14,49 @@ It provides:
 - Multiple named registrations per interface or class.
 - Object lifetime to create instance or singleton objects.
 
-# Background
+## Background
 
 While this might appear to be a new project with few commits it is a recent rewrite of my personal long standing IOC library that has existed for a few years. It has been used in small and large scale projects, the largest being a set of web services that runs a company backend with 500K+ lines of code.
 
-# Sample registrations:
+## Sample registrations:
 
 Register a singleton for an interface.
 
-IOC.Register<IThing>(() => new thing());
+<code>IOC.Register&lt;IThing&gt;(() => new thing());</code>
 
 Register a named singleton for an interface.
 
-IOC.Register<IThing>("Name", () => new thing())
+<code>IOC.Register&lt;IThing&gt;("Name", () => new thing());</code>
 
 Register a named via enum singleton for an interface.
 
-IOC.Register<IThing>(EnumType.Value, () => new thing())
+<code>IOC.Register&lt;IThing&gt;(EnumType.Value, () => new thing());</code>
 
 Register an instance for an interface.
 
-IOC.Register<IThing>(ObjectLifetime.Instance, () => new thing());
+<code>IOC.Register&lt;IThing&gt;(ObjectLifetime.Instance, () => new thing());</code>
 
 Register a named Instance for an interface.
 
-IOC.Register<IThing>("Name", ObjectLifetime.Instance, () => new thing());
+<code>IOC.Register&lt;IThing&gt;("Name", ObjectLifetime.Instance, () => new thing());</code>
 
 Register with nested resolution.
 
-IOC.Register<IThing>(() => new thing(IOC.Resolve<IList<int>()));
+<code>IOC.Register&lt;IThing&gt;(() => new thing(IOC.Resolve<IList<int>()));</code>
 
-# Sample resolutions
+## Sample resolutions
 
 Resolve an instance.
 
-var instance = IOC.Resolve<IThing>();
+<code>var instance = IOC.Resolve&lt;IThing&gt;();</code>
 
 Resolve a named instance.
 
-var instance = IOC.Resolve<IThing>("Name");
+<code>var instance = IOC.Resolve&lt;IThing&gt;("Name");</code>
 
-# Other operations 
+## Other operations 
 
 Flush the registration list.
 
-IOC.Clear();
+<code>IOC.Clear();</code>
 
