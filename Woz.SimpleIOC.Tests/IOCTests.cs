@@ -32,7 +32,7 @@ namespace Woz.SimpleIOC.Tests
 
         private interface IThing {}
         private class Thing1 : IThing {}
-        private class Thing2 : IThing { }
+        private class Thing2 : IThing {}
 
         private interface IComplexThing
         {
@@ -56,6 +56,18 @@ namespace Woz.SimpleIOC.Tests
         }
 
         [TestMethod]
+        public void InstanceRegistrationDefaultBuilder()
+        {
+            IOC.Register<IThing, Thing1>(ObjectLifetime.Instance);
+
+            Assert.IsNotNull(IOC.Resolve<IThing>());
+
+            Assert.AreNotSame(
+                IOC.Resolve<IThing>(),
+                IOC.Resolve<IThing>());
+        }
+
+        [TestMethod]
         public void InstanceRegistration()
         {
             IOC.Register<IThing>(
@@ -65,6 +77,18 @@ namespace Woz.SimpleIOC.Tests
 
             Assert.AreNotSame(
                 IOC.Resolve<IThing>(), 
+                IOC.Resolve<IThing>());
+        }
+
+        [TestMethod]
+        public void SingletonRegistrationDefaultBuilder()
+        {
+            IOC.Register<IThing, Thing1>();
+
+            Assert.IsNotNull(IOC.Resolve<IThing>());
+
+            Assert.AreSame(
+                IOC.Resolve<IThing>(),
                 IOC.Resolve<IThing>());
         }
 
@@ -81,12 +105,26 @@ namespace Woz.SimpleIOC.Tests
         }
 
         [TestMethod]
+        public void NamedRegistrationDefaultBuilder()
+        {
+            IOC.Register<IThing, Thing1>(Name1, ObjectLifetime.Instance);
+            IOC.Register<IThing, Thing2>(Name2);
+
+            Assert.AreEqual(
+                IOC.Resolve<IThing>(Name1).GetType().FullName,
+                typeof(Thing1).FullName);
+
+            Assert.AreEqual(
+                IOC.Resolve<IThing>(Name2).GetType().FullName,
+                typeof(Thing2).FullName);
+        }
+
+        [TestMethod]
         public void NamedRegistration()
         {
             IOC.Register<IThing>(
                 Name1, ObjectLifetime.Instance, () => new Thing1());
-            IOC.Register<IThing>(
-                Name2, ObjectLifetime.Singleton, () => new Thing2());
+            IOC.Register<IThing>(Name2, () => new Thing2());
 
             Assert.AreEqual(
                 IOC.Resolve<IThing>(Name1).GetType().FullName, 
