@@ -42,7 +42,11 @@ Register a named Instance for an interface.
 
 Register with nested resolution.
 
-<code>IOC.Register&lt;IThing&gt;(() => new thing(IOC.Resolve&lt;IList&lt;int&gt;&gt;()));</code>
+<code>IOC.Register&lt;IThing&gt;(() => new Thing(IOC.Resolve&lt;IList&lt;int&gt;&gt;()));</code>
+
+Registration with default builder, all registration methods support this style.
+
+<code>IOC.Register&lt;IThing, Thing&gt;();</code>
 
 ## Sample resolutions
 
