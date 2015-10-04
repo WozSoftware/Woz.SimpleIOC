@@ -1,6 +1,6 @@
 # Woz.SimpleIOC
 
-A compact lightweight thread safe IOC library for .NET compiled to a pertable class library with support for:
+A compact lightweight thread safe IOC library for .NET compiled to a portable class library with support for:
 - .NET Framework 4.5
 - .NET Framework 4.5.1
 - .NET Framework 4.6
