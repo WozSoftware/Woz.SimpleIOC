@@ -64,3 +64,6 @@ Flush the registration list.
 
 <code>IOC.Clear();</code>
 
+Freeze the IOC container to remove most thread locking contentions
+
+<code>IOC.FreezeRegistrations();</code>

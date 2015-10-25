@@ -29,14 +29,22 @@ namespace Woz.SimpleIOC
     /// </summary>
     public class IOC
     {
-        private readonly IDictionary<Identity, Func<object>> _typeMap =
+        private static readonly object LockInstance = new object();
+        private static bool _frozen = false;
+        private static readonly IDictionary<Identity, Func<object>> TypeMap =
             new Dictionary<Identity, Func<object>>();
 
-        private static readonly object LockInstance = new object();
-        private static Func<IOC> _getContainer = GetContainerFactory();
-
-        private static Func<IOC> GetContainerFactory()
-            => SingletonOf(() => new IOC());
+        /// <summary>
+        /// Freezes the IOC. No new registrations are allowed. This removes
+        /// locking contention on the IOC lookup
+        /// </summary>
+        public static void FreezeRegistrations()
+        {
+            lock (LockInstance)
+            {
+                _frozen = true;
+            }
+        }
 
         /// <summary>
         /// Empties the IOC resolver cache of all registrations.
@@ -45,18 +53,21 @@ namespace Woz.SimpleIOC
         {
             lock (LockInstance)
             {
-                _getContainer = GetContainerFactory();
+                TypeMap.Clear();
+                _frozen = false;
             }
         }
 
         private static Func<T> SingletonOf<T>(Func<T> builder)
             where T : class
         {
+            var singletonLockInstance = new object();
             T instance = null;
+
             return
                 () =>
                 {
-                    lock (LockInstance)
+                    lock (singletonLockInstance)
                     {
                         return instance ?? (instance = builder());
                     }
@@ -84,8 +95,7 @@ namespace Woz.SimpleIOC
         /// <param name="builder">The concrete builder for the type</param>
         public static void Register<T>(Func<T> builder)
             where T : class
-            => _getContainer().RegisterFor(
-                string.Empty, ObjectLifetime.Singleton, builder);
+            => RegisterFor(string.Empty, ObjectLifetime.Singleton, builder);
 
         /// <summary>
         /// Registers a named singleton type in the IOC resolver cache
@@ -106,8 +116,7 @@ namespace Woz.SimpleIOC
         /// <param name="builder">The concrete builder for the type</param>
         public static void Register<T>(object name, Func<T> builder)
             where T : class
-            => _getContainer().RegisterFor(
-                name, ObjectLifetime.Singleton, builder);
+            => RegisterFor(name, ObjectLifetime.Singleton, builder);
 
         /// <summary>
         /// Registers an un-named type with the specified lifetime in the IOC 
@@ -131,8 +140,7 @@ namespace Woz.SimpleIOC
         public static void Register<T>(
             ObjectLifetime lifetime, Func<T> builder)
             where T : class
-            => _getContainer().RegisterFor(
-                string.Empty, lifetime, builder);
+            => RegisterFor(string.Empty, lifetime, builder);
 
         /// <summary>
         /// Registers a named type with the specified lifetime in the IOC 
@@ -159,19 +167,25 @@ namespace Woz.SimpleIOC
         public static void Register<T>(
             object name, ObjectLifetime lifetime, Func<T> builder)
             where T : class
-            => _getContainer().RegisterFor(name, lifetime, builder);
+            => RegisterFor(name, lifetime, builder);
 
-        private void RegisterFor<T>(
+        private static void RegisterFor<T>(
             object name, ObjectLifetime lifetime, Func<T> builder)
             where T : class
         {
+            if (_frozen)
+            {
+                throw new InvalidOperationException(
+                    "IOC is now locked for registrations");
+            }
+
             var wrappedBuilder = lifetime == ObjectLifetime.Instance
                 ? builder
                 : SingletonOf(builder);
 
             lock (LockInstance)
             {
-                _typeMap[Identity.For(typeof(T), name)] = wrappedBuilder;
+                TypeMap[Identity.For(typeof(T), name)] = wrappedBuilder;
             }
         }
 
@@ -182,7 +196,7 @@ namespace Woz.SimpleIOC
         /// <returns>The concrete instance of the type</returns>
         public static T Resolve<T>()
             where T : class
-            => _getContainer().ResolverFor<T>(string.Empty);
+            => ResolverFor<T>(string.Empty);
 
         /// <summary>
         /// Resolve a named type from the IOC resolver cache
@@ -192,20 +206,34 @@ namespace Woz.SimpleIOC
         /// <returns>The concrete instance of the type</returns>
         public static T Resolve<T>(object name)
             where T : class
-            => _getContainer().ResolverFor<T>(name);
+            => ResolverFor<T>(name);
 
-        private T ResolverFor<T>(object name)
+        private static T ResolverFor<T>(object name)
             where T : class
         {
             var type = typeof (T);
 
-            T instance = null;
-            lock (LockInstance)
-            {
-                Func<object> builder;
-                if (_typeMap.TryGetValue(Identity.For(type, name), out builder))
+            Func<T> resolve =
+                () =>
                 {
-                    instance = builder() as T;
+                    Func<object> builder;
+                    if (TypeMap.TryGetValue(Identity.For(type, name), out builder))
+                    {
+                        return builder() as T;
+                    }
+                    return null;
+                };
+
+            T instance;
+            if (_frozen)
+            {
+                instance = resolve();
+            }
+            else
+            {
+                lock (LockInstance)
+                {
+                    instance = resolve();
                 }
             }
 

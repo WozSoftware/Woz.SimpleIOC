@@ -56,6 +56,25 @@ namespace Woz.SimpleIOC.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void FreezeRegistrations()
+        {
+            IOC.FreezeRegistrations();
+            IOC.Register<IThing, Thing1>(ObjectLifetime.Instance);
+        }
+
+
+        [TestMethod]
+        public void ResolveWhenFrozen()
+        {
+            IOC.Register<IThing>(
+                ObjectLifetime.Instance, () => new Thing1());
+            IOC.FreezeRegistrations();
+
+            Assert.IsNotNull(IOC.Resolve<IThing>());
+        }
+
+        [TestMethod]
         public void InstanceRegistrationDefaultBuilder()
         {
             IOC.Register<IThing, Thing1>(ObjectLifetime.Instance);
