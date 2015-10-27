@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/WozSoftware/Woz.SimpleIOC</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Allow IOC freeze to ease locking.</releaseNotes>
+    <releaseNotes>Singleton locking now only on first create.</releaseNotes>
     <copyright>Copyright Woz.Software 2015</copyright>
     <tags>IOC</tags>
   </metadata>
