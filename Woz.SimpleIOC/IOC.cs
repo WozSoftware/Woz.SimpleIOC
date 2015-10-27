@@ -30,7 +30,7 @@ namespace Woz.SimpleIOC
     public class IOC
     {
         private static readonly object LockInstance = new object();
-        private static bool _frozen = false;
+        private static bool _frozen;
         private static readonly IDictionary<Identity, Func<object>> TypeMap =
             new Dictionary<Identity, Func<object>>();
 
@@ -67,10 +67,20 @@ namespace Woz.SimpleIOC
             return
                 () =>
                 {
-                    lock (singletonLockInstance)
+                    // Nested check means we only lock when required and also handle
+                    // the issue where two threads get past the first if.
+                    if (instance == null)
                     {
-                        return instance ?? (instance = builder());
+                        lock (singletonLockInstance)
+                        {
+                            if (instance == null)
+                            {
+                                instance = builder();
+                            }
+                        }
                     }
+
+                    return instance;
                 };
         }
 
