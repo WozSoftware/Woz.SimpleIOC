@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
-    <Version>2.0.0</Version>
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <Version>2.1.0</Version>
     <Authors>Woz</Authors>
     <Company>Woz.Software</Company>
     <Description>Simple thread safe IOC container</Description>
@@ -13,7 +13,7 @@
     <RepositoryType>Git</RepositoryType>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageTags>IOC</PackageTags>
-    <PackageReleaseNotes>Moved to .NETStandard 1.6 and breaking changes in API to allow multiple containers</PackageReleaseNotes>
+    <PackageReleaseNotes>Moved to .NETStandard 1.0 to allow wider use and cleaned up/ease locking contention where not required</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

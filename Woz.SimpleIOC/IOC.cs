@@ -30,6 +30,7 @@
 #endregion
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Woz.SimpleIOC
 {
@@ -60,13 +61,7 @@ namespace Woz.SimpleIOC
         /// Freezes the IOC. No new registrations are allowed. This removes
         /// locking contention on the IOC lookup
         /// </summary>
-        public void FreezeRegistrations()
-        {
-            lock (_lockInstance)
-            {
-                _frozen = true;
-            }
-        }
+        public void FreezeRegistrations() => _frozen = true;
 
         /// <summary>
         /// Empties the IOC resolver cache of all registrations and removes
@@ -84,25 +79,12 @@ namespace Woz.SimpleIOC
         private static Func<IOC, T> SingletonOf<T>(Func<IOC, T> builder)
             where T : class
         {
-            var singletonLockInstance = new object();
             T instance = null;
 
             return
                 ioc =>
                 {
-                    // Nested check means we only lock when required and also handle
-                    // the issue where two threads get past the first if.
-                    if (instance == null)
-                    {
-                        lock (singletonLockInstance)
-                        {
-                            if (instance == null)
-                            {
-                                instance = builder(ioc);
-                            }
-                        }
-                    }
-
+                    LazyInitializer.EnsureInitialized<T>(ref instance, () => builder(ioc));
                     return instance;
                 };
         }
