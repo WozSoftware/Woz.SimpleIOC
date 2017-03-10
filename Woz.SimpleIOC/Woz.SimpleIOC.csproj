@@ -12,6 +12,8 @@
     <RepositoryUrl>https://github.com/WozSoftware/Woz.SimpleIOC</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageTags>IOC</PackageTags>
+    <PackageReleaseNotes>Moved to .NETStandard 1.6 and breaking changes in API to allow multiple containers</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
