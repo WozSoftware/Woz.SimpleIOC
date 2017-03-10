@@ -1,21 +1,32 @@
 ﻿#region License
-// Copyright (C) Woz.Software 2015
+// This file is part of Woz.SimpleIOC.
 // [https://github.com/WozSoftware/Woz.SimpleIOC]
 //
-// This file is part of Woz.SimpleIOC.
-//
-// Woz.SimpleIOC is free software: you can redistribute it 
-// and/or modify it under the terms of the GNU General Public 
-// License as published by the Free Software Foundation, either 
-// version 3 of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// This is free and unencumbered software released into the public domain.
+// 
+// Anyone is free to copy, modify, publish, use, compile, sell, or
+// distribute this software, either in source code form or as a compiled
+// binary, for any purpose, commercial or non-commercial, and by any
+// means.
+// 
+// In jurisdictions that recognize copyright laws, the author or authors
+// of this software dedicate any and all copyright interest in the
+// software to the public domain. We make this dedication for the benefit
+// of the public at large and to the detriment of our heirs and
+// successors. We intend this dedication to be an overt act of
+// relinquishment in perpetuity of all present and future rights to this
+// software under copyright law.
+// 
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+// OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+// 
+// For more information, please refer to<http://unlicense.org>
 #endregion
 using System;
 using System.Collections.Generic;
@@ -29,43 +40,55 @@ namespace Woz.SimpleIOC
     /// </summary>
     public class IOC
     {
-        private static readonly object LockInstance = new object();
-        private static bool _frozen;
-        private static readonly IDictionary<Identity, Func<object>> TypeMap =
-            new Dictionary<Identity, Func<object>>();
+        private bool _frozen;
+        private readonly object _lockInstance;
+        private readonly IDictionary<Identity, Func<IOC, object>> _typeMap;
+
+        /// <summary>
+        /// Create an instance of the resolver cache
+        /// </summary>
+        /// <returns>The resolver cache</returns>
+        public static IOC Create() => new IOC();
+
+        private IOC()
+        {
+            _lockInstance = new object();
+            _typeMap = new Dictionary<Identity, Func<IOC, object>>();
+        }
 
         /// <summary>
         /// Freezes the IOC. No new registrations are allowed. This removes
         /// locking contention on the IOC lookup
         /// </summary>
-        public static void FreezeRegistrations()
+        public void FreezeRegistrations()
         {
-            lock (LockInstance)
+            lock (_lockInstance)
             {
                 _frozen = true;
             }
         }
 
         /// <summary>
-        /// Empties the IOC resolver cache of all registrations.
+        /// Empties the IOC resolver cache of all registrations and removes
+        /// the freeze lock.
         /// </summary>
-        public static void Clear()
+        public void Clear()
         {
-            lock (LockInstance)
+            lock (_lockInstance)
             {
-                TypeMap.Clear();
+                _typeMap.Clear();
                 _frozen = false;
             }
         }
 
-        private static Func<T> SingletonOf<T>(Func<T> builder)
+        private static Func<IOC, T> SingletonOf<T>(Func<IOC, T> builder)
             where T : class
         {
             var singletonLockInstance = new object();
             T instance = null;
 
             return
-                () =>
+                ioc =>
                 {
                     // Nested check means we only lock when required and also handle
                     // the issue where two threads get past the first if.
@@ -75,7 +98,7 @@ namespace Woz.SimpleIOC
                         {
                             if (instance == null)
                             {
-                                instance = builder();
+                                instance = builder(ioc);
                             }
                         }
                     }
@@ -84,7 +107,7 @@ namespace Woz.SimpleIOC
                 };
         }
 
-        public static T DefaultBuilder<T>()
+        private static T DefaultBuilder<T>(IOC ioc)
             where T : new()
             => new T();
 
@@ -93,7 +116,7 @@ namespace Woz.SimpleIOC
         /// </summary>
         /// <typeparam name="T">The type to register</typeparam>
         /// <typeparam name="TConcrete">The implementation type</typeparam>
-        public static void Register<T, TConcrete>()
+        public void Register<T, TConcrete>()
             where T : class
             where TConcrete : class, T, new()
             => Register<T>(DefaultBuilder<TConcrete>);
@@ -103,7 +126,7 @@ namespace Woz.SimpleIOC
         /// </summary>
         /// <typeparam name="T">The type to register</typeparam>
         /// <param name="builder">The concrete builder for the type</param>
-        public static void Register<T>(Func<T> builder)
+        public void Register<T>(Func<IOC, T> builder)
             where T : class
             => RegisterFor(string.Empty, ObjectLifetime.Singleton, builder);
 
@@ -113,7 +136,7 @@ namespace Woz.SimpleIOC
         /// <typeparam name="T">The type to register</typeparam>
         /// <typeparam name="TConcrete">The implementation type</typeparam>
         /// <param name="name">The name to register the type under</param>
-        public static void Register<T, TConcrete>(object name)
+        public void Register<T, TConcrete>(object name)
             where T : class
             where TConcrete : class, T, new()
             => Register<T>(name, DefaultBuilder<TConcrete>);
@@ -124,7 +147,7 @@ namespace Woz.SimpleIOC
         /// <typeparam name="T">The type to register</typeparam>
         /// <param name="name">The name to register the type under</param>
         /// <param name="builder">The concrete builder for the type</param>
-        public static void Register<T>(object name, Func<T> builder)
+        public void Register<T>(object name, Func<IOC, T> builder)
             where T : class
             => RegisterFor(name, ObjectLifetime.Singleton, builder);
 
@@ -135,7 +158,7 @@ namespace Woz.SimpleIOC
         /// <typeparam name="T">The type to register</typeparam>
         /// <typeparam name="TConcrete">The implementation type</typeparam>
         /// <param name="lifetime">The lifetime of the type</param>
-        public static void Register<T, TConcrete>(ObjectLifetime lifetime)
+        public void Register<T, TConcrete>(ObjectLifetime lifetime)
             where T : class
             where TConcrete : class, T, new()
             => Register<T>(lifetime, DefaultBuilder<TConcrete>);
@@ -147,8 +170,8 @@ namespace Woz.SimpleIOC
         /// <typeparam name="T">The type to register</typeparam>
         /// <param name="lifetime">The lifetime of the type</param>
         /// <param name="builder">The concrete builder for the type</param>
-        public static void Register<T>(
-            ObjectLifetime lifetime, Func<T> builder)
+        public void Register<T>(
+            ObjectLifetime lifetime, Func<IOC, T> builder)
             where T : class
             => RegisterFor(string.Empty, lifetime, builder);
 
@@ -160,7 +183,7 @@ namespace Woz.SimpleIOC
         /// <typeparam name="TConcrete">The implementation type</typeparam>
         /// <param name="name">The name to register the type under</param>
         /// <param name="lifetime">The lifetime of the type</param>
-        public static void Register<T, TConcrete>(
+        public void Register<T, TConcrete>(
             object name, ObjectLifetime lifetime)
             where T : class
             where TConcrete : class, T, new()
@@ -174,13 +197,13 @@ namespace Woz.SimpleIOC
         /// <param name="name">The name to register the type under</param>
         /// <param name="lifetime">The lifetime of the type</param>
         /// <param name="builder">The concrete builder for the type</param>
-        public static void Register<T>(
-            object name, ObjectLifetime lifetime, Func<T> builder)
+        public void Register<T>(
+            object name, ObjectLifetime lifetime, Func<IOC, T> builder)
             where T : class
             => RegisterFor(name, lifetime, builder);
 
-        private static void RegisterFor<T>(
-            object name, ObjectLifetime lifetime, Func<T> builder)
+        private void RegisterFor<T>(
+            object name, ObjectLifetime lifetime, Func<IOC, T> builder)
             where T : class
         {
             if (_frozen)
@@ -193,9 +216,9 @@ namespace Woz.SimpleIOC
                 ? builder
                 : SingletonOf(builder);
 
-            lock (LockInstance)
+            lock (_lockInstance)
             {
-                TypeMap[Identity.For(typeof(T), name)] = wrappedBuilder;
+                _typeMap[Identity.For(typeof(T), name)] = wrappedBuilder;
             }
         }
 
@@ -204,7 +227,7 @@ namespace Woz.SimpleIOC
         /// </summary>
         /// <typeparam name="T">The type to resolve</typeparam>
         /// <returns>The concrete instance of the type</returns>
-        public static T Resolve<T>()
+        public T Resolve<T>()
             where T : class
             => ResolverFor<T>(string.Empty);
 
@@ -214,22 +237,22 @@ namespace Woz.SimpleIOC
         /// <typeparam name="T">The type to resolve</typeparam>
         /// <param name="name">The name of the type to resolve</param>
         /// <returns>The concrete instance of the type</returns>
-        public static T Resolve<T>(object name)
+        public T Resolve<T>(object name)
             where T : class
             => ResolverFor<T>(name);
 
-        private static T ResolverFor<T>(object name)
+        private T ResolverFor<T>(object name)
             where T : class
         {
-            var type = typeof (T);
+            var type = typeof(T);
 
-            Func<T> resolve =
-                () =>
+            Func<IOC, T> resolve =
+                ioc =>
                 {
-                    Func<object> builder;
-                    if (TypeMap.TryGetValue(Identity.For(type, name), out builder))
+                    if (_typeMap.TryGetValue(
+                        Identity.For(type, name), out Func<IOC, object> builder))
                     {
-                        return builder() as T;
+                        return builder(ioc) as T;
                     }
                     return null;
                 };
@@ -237,13 +260,13 @@ namespace Woz.SimpleIOC
             T instance;
             if (_frozen)
             {
-                instance = resolve();
+                instance = resolve(this);
             }
             else
             {
-                lock (LockInstance)
+                lock (_lockInstance)
                 {
-                    instance = resolve();
+                    instance = resolve(this);
                 }
             }
 
