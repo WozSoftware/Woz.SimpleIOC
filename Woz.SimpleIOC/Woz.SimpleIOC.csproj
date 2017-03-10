@@ -13,7 +13,7 @@
     <RepositoryType>Git</RepositoryType>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageTags>IOC</PackageTags>
-    <PackageReleaseNotes>Moved to .NETStandard 1.0 to allow wider use and cleaned up/ease locking contention where not required</PackageReleaseNotes>
+    <PackageReleaseNotes>Cleaned up/ease locking contention where not required</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
