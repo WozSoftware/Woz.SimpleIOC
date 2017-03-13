@@ -49,12 +49,8 @@ namespace Woz.SimpleIOC
         public override bool Equals(object obj)
         {
             var other = obj as Identity;
-            if (other == null)
-            {
-                return false;
-            }
 
-            return Equals(other);
+            return other == null ? false : Equals(other);
         }
 
         public bool Equals(Identity other)

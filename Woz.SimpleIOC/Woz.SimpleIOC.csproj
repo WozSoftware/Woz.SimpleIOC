@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
-    <Version>2.1.0</Version>
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <Version>2.2.0</Version>
     <Authors>Woz</Authors>
     <Company>Woz.Software</Company>
     <Description>Simple thread safe IOC container</Description>
@@ -13,7 +13,7 @@
     <RepositoryType>Git</RepositoryType>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageTags>IOC</PackageTags>
-    <PackageReleaseNotes>Cleaned up/ease locking contention where not required</PackageReleaseNotes>
+    <PackageReleaseNotes>Now .NETStandard 1, MS broke 1.6 so might as well go lowest</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

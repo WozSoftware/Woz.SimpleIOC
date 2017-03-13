@@ -30,7 +30,7 @@
 #endregion
 using System;
 using System.Collections.Generic;
-using System.Threading;
+using static System.Threading.LazyInitializer;
 
 namespace Woz.SimpleIOC
 {
@@ -79,12 +79,15 @@ namespace Woz.SimpleIOC
         private static Func<IOC, T> SingletonOf<T>(Func<IOC, T> builder)
             where T : class
         {
+            var lockInstance = new object();
+            bool initialised = false;
             T instance = null;
 
             return
                 ioc =>
                 {
-                    LazyInitializer.EnsureInitialized<T>(ref instance, () => builder(ioc));
+                    EnsureInitialized(
+                        ref instance, ref initialised, ref lockInstance, () => builder(ioc));
                     return instance;
                 };
         }
@@ -152,8 +155,7 @@ namespace Woz.SimpleIOC
         /// <typeparam name="T">The type to register</typeparam>
         /// <param name="lifetime">The lifetime of the type</param>
         /// <param name="builder">The concrete builder for the type</param>
-        public void Register<T>(
-            ObjectLifetime lifetime, Func<IOC, T> builder)
+        public void Register<T>(ObjectLifetime lifetime, Func<IOC, T> builder)
             where T : class
             => RegisterFor(string.Empty, lifetime, builder);
 
@@ -165,8 +167,7 @@ namespace Woz.SimpleIOC
         /// <typeparam name="TConcrete">The implementation type</typeparam>
         /// <param name="name">The name to register the type under</param>
         /// <param name="lifetime">The lifetime of the type</param>
-        public void Register<T, TConcrete>(
-            object name, ObjectLifetime lifetime)
+        public void Register<T, TConcrete>(object name, ObjectLifetime lifetime)
             where T : class
             where TConcrete : class, T, new()
             => Register<T>(name, lifetime, DefaultBuilder<TConcrete>);
@@ -179,8 +180,7 @@ namespace Woz.SimpleIOC
         /// <param name="name">The name to register the type under</param>
         /// <param name="lifetime">The lifetime of the type</param>
         /// <param name="builder">The concrete builder for the type</param>
-        public void Register<T>(
-            object name, ObjectLifetime lifetime, Func<IOC, T> builder)
+        public void Register<T>(object name, ObjectLifetime lifetime, Func<IOC, T> builder)
             where T : class
             => RegisterFor(name, lifetime, builder);
 
@@ -229,15 +229,10 @@ namespace Woz.SimpleIOC
             var type = typeof(T);
 
             Func<IOC, T> resolve =
-                ioc =>
-                {
-                    if (_typeMap.TryGetValue(
-                        Identity.For(type, name), out Func<IOC, object> builder))
-                    {
-                        return builder(ioc) as T;
-                    }
-                    return null;
-                };
+                ioc => _typeMap.TryGetValue(
+                    Identity.For(type, name), out Func<IOC, object> builder)
+                        ? builder(ioc) as T
+                        : null;
 
             T instance;
             if (_frozen)
